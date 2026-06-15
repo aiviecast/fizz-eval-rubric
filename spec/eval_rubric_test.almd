@@ -1,0 +1,53 @@
+import self as rb
+import float
+
+test "軸数と Likert 範囲" {
+  assert_eq(rb.axis_count(), 7)
+  assert_eq(rb.score_min(), 1)
+  assert_eq(rb.score_max(), 7)
+}
+
+test "is_valid_score: 1..7" {
+  assert_eq(rb.is_valid_score(1), true)
+  assert_eq(rb.is_valid_score(7), true)
+  assert_eq(rb.is_valid_score(0), false)
+  assert_eq(rb.is_valid_score(8), false)
+}
+
+test "axis_index: 略号 → index(大小無視)" {
+  assert_eq(rb.axis_index("BEL"), 0)
+  assert_eq(rb.axis_index("eng"), 1)
+  assert_eq(rb.axis_index("Tex"), 2)
+  assert_eq(rb.axis_index("INI"), 3)
+  assert_eq(rb.axis_index("emo"), 4)
+  assert_eq(rb.axis_index("TEM"), 5)
+  assert_eq(rb.axis_index("con"), 6)
+  assert_eq(rb.axis_index("XXX"), -1)
+  assert_eq(rb.is_valid_axis("BEL"), true)
+  assert_eq(rb.is_valid_axis("ZZZ"), false)
+}
+
+test "axis_abbrev / axis_label" {
+  assert_eq(rb.axis_abbrev(0), "BEL")
+  assert_eq(rb.axis_abbrev(6), "CON")
+  assert_eq(rb.axis_abbrev(7), "")
+  assert_eq(rb.axis_label(0), "Believability")
+  assert_eq(rb.axis_label(4), "Emotional resonance")
+  assert_eq(rb.axis_label(99), "")
+}
+
+test "axis_weight: コンポジット重み(eval.rs と一致)" {
+  // 0.20·BEL + 0.20·ENG + 0.15·TEX + 0.10·INI + 0.20·EMO + 0.10·TEM + 0.05·CON
+  assert_eq(float.to_int(float.round(rb.axis_weight(0) * 100.0)), 20)  // BEL
+  assert_eq(float.to_int(float.round(rb.axis_weight(1) * 100.0)), 20)  // ENG
+  assert_eq(float.to_int(float.round(rb.axis_weight(2) * 100.0)), 15)  // TEX
+  assert_eq(float.to_int(float.round(rb.axis_weight(3) * 100.0)), 10)  // INI
+  assert_eq(float.to_int(float.round(rb.axis_weight(4) * 100.0)), 20)  // EMO
+  assert_eq(float.to_int(float.round(rb.axis_weight(5) * 100.0)), 10)  // TEM
+  assert_eq(float.to_int(float.round(rb.axis_weight(6) * 100.0)), 5)   // CON
+  assert_eq(float.to_int(float.round(rb.axis_weight(7) * 100.0)), 0)   // 範囲外
+}
+
+test "weights_sum == 1.0" {
+  assert_eq(float.to_int(float.round(rb.weights_sum() * 1000.0)), 1000)
+}

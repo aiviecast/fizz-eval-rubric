@@ -1,0 +1,4 @@
+[package]
+name = "fizz_eval_rubric"
+version = "0.1.0"
+description = "Fizz eval rubric — kotodama-eval 7-axis rubric (BEL/ENG/TEX/INI/EMO/TEM/CON): axis index/abbrev/label, composite weights, Likert 1-7 range. Canonical definition. One Almide core, native + wasm."

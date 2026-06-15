@@ -1,0 +1,22 @@
+// CLI エントリポイント (native) — ルーブリック定義をダンプ。
+import self as rb
+import json
+import value
+
+effect fn main() -> Unit = {
+  println(json.stringify(value.object([
+    ("axis_count", value.int(rb.axis_count())),
+    ("score_min", value.int(rb.score_min())),
+    ("score_max", value.int(rb.score_max())),
+    ("weights_sum", value.float(rb.weights_sum())),
+    ("idx_BEL", value.int(rb.axis_index("bel"))),
+    ("idx_CON", value.int(rb.axis_index("CON"))),
+    ("idx_unknown", value.int(rb.axis_index("XXX"))),
+    ("abbrev_0", value.str(rb.axis_abbrev(0))),
+    ("label_4", value.str(rb.axis_label(4))),
+    ("weight_0", value.float(rb.axis_weight(0))),
+    ("weight_6", value.float(rb.axis_weight(6))),
+    ("valid_score_7", value.bool(rb.is_valid_score(7))),
+    ("valid_score_8", value.bool(rb.is_valid_score(8))),
+  ])))
+}

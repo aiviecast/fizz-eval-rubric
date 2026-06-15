@@ -1,0 +1,55 @@
+// fizz_eval_rubric — kotodama-eval 7 軸ルーブリックの正本(§12 eval-rubric)。
+//
+// 責務 (一行): AITuber/companion 品質を測る 7 軸(BEL/ENG/TEX/INI/EMO/TEM/CON)の
+// メタデータ — index・略号・名称・コンポジット重み・Likert スコア範囲 — を定義する。
+//
+// judge LLM の呼び出しは外部 API、軸の定義(何軸あるか・重みは何か)は純粋なので
+// Almide に集約=単一の正本。集計の算術は fizz-eval-score 側。
+// 移植元: openaituber kotodama/docs/eval-rubric.md + kotodama-cli/src/eval.rs。
+
+import string
+
+// 軸数。
+fn axis_count() -> Int = 7
+
+// Likert スコア範囲(1=全くダメ、4=中立、7=人間の上手な会話相手と区別不能)。
+fn score_min() -> Int = 1
+fn score_max() -> Int = 7
+
+// スコアが 1..7 の範囲内か。
+fn is_valid_score(s: Int) -> Bool = s >= score_min() and s <= score_max()
+
+// 略号 → 軸 index(0..6)。未知は -1。
+fn axis_index(abbrev: String) -> Int = match string.to_upper(abbrev) {
+  "BEL" => 0, "ENG" => 1, "TEX" => 2, "INI" => 3,
+  "EMO" => 4, "TEM" => 5, "CON" => 6,
+  _ => -1,
+}
+
+// 略号が既知の軸か。
+fn is_valid_axis(abbrev: String) -> Bool = axis_index(abbrev) >= 0
+
+// 軸 index → 略号。範囲外は ""。
+fn axis_abbrev(idx: Int) -> String = match idx {
+  0 => "BEL", 1 => "ENG", 2 => "TEX", 3 => "INI",
+  4 => "EMO", 5 => "TEM", 6 => "CON", _ => "",
+}
+
+// 軸 index → 名称。範囲外は ""。
+fn axis_label(idx: Int) -> String = match idx {
+  0 => "Believability", 1 => "Engagement", 2 => "Texture", 3 => "Initiative",
+  4 => "Emotional resonance", 5 => "Tempo", 6 => "Continuity", _ => "",
+}
+
+// 軸 index → コンポジット重み。範囲外は 0.0。
+// 重みは eval-rubric.md「集計」節 = eval.rs ScenarioScore::composite と一致。
+// BEL/ENG/EMO を重視(AITuber 用途の主観)。合計 1.0。
+fn axis_weight(idx: Int) -> Float = match idx {
+  0 => 0.20, 1 => 0.20, 2 => 0.15, 3 => 0.10,
+  4 => 0.20, 5 => 0.10, 6 => 0.05, _ => 0.0,
+}
+
+// 全軸の重みの合計(健全性: 1.0 のはず)。
+fn weights_sum() -> Float =
+  axis_weight(0) + axis_weight(1) + axis_weight(2) + axis_weight(3)
+  + axis_weight(4) + axis_weight(5) + axis_weight(6)

@@ -1,0 +1,80 @@
+// wasm — eval ダッシュボード / レポート UI から呼ぶ。
+//   index/weight/count/range は Int/Float で返す。略号→index の文字列入力は
+//   in_alloc バッファ + コピー経由(almide#690 回避)。abbrev/label の文字列出力は
+//   out_ptr で読む(呼ぶたびに 1 回読む運用)。
+import self as rb
+import bytes
+import float
+import int
+import list
+import string
+
+var g_in: Bytes = bytes.new(0)
+var g_out: Bytes = bytes.new(0)
+
+@export(wasm, "in_alloc")
+fn in_alloc(len: Float) -> RawPtr = {
+  g_in = bytes.new(float.to_int(len))
+  bytes.as_mut_ptr(g_in)
+}
+
+@export(wasm, "out_ptr")
+fn out_ptr() -> RawPtr = bytes.as_mut_ptr(g_out)
+
+@export(wasm, "axis_count")
+fn w_axis_count() -> Float = int.to_float(rb.axis_count())
+
+@export(wasm, "score_min")
+fn w_score_min() -> Float = int.to_float(rb.score_min())
+
+@export(wasm, "score_max")
+fn w_score_max() -> Float = int.to_float(rb.score_max())
+
+@export(wasm, "is_valid_score")
+fn w_is_valid_score(s: Float) -> Float = if rb.is_valid_score(float.to_int(s)) then 1.0 else 0.0
+
+@export(wasm, "axis_weight")
+fn w_axis_weight(idx: Float) -> Float = rb.axis_weight(float.to_int(idx))
+
+@export(wasm, "weights_sum")
+fn w_weights_sum() -> Float = rb.weights_sum()
+
+// 略号 → index。g_in を from_list(to_list(...)) で独立バッファにコピーしてから
+// 文字列化する(to_string_lossy が g_in をエイリアスし dec で free する almide#690 回避)。
+@export(wasm, "axis_index")
+fn w_axis_index() -> Float =
+  int.to_float(rb.axis_index(bytes.to_string_lossy(bytes.from_list(bytes.to_list(g_in)))))
+
+// 軸 index → 略号文字列を g_out に書き、長さを返す(out_ptr で読む)。
+@export(wasm, "axis_abbrev_resolve")
+fn w_axis_abbrev(idx: Float) -> Float = {
+  let s = rb.axis_abbrev(float.to_int(idx))
+  g_out = bytes.from_string(s)
+  int.to_float(list.len(string.to_bytes(s)))
+}
+
+// 軸 index → 名称文字列を g_out に書き、長さを返す。
+@export(wasm, "axis_label_resolve")
+fn w_axis_label(idx: Float) -> Float = {
+  let s = rb.axis_label(float.to_int(idx))
+  g_out = bytes.from_string(s)
+  int.to_float(list.len(string.to_bytes(s)))
+}
+
+effect fn main() -> Unit = {
+  let _a = in_alloc(1.0)
+  let _b = w_axis_count()
+  let _c = w_axis_weight(0.0)
+  let _d = w_weights_sum()
+  let _e = w_axis_index()
+  let _f = w_axis_abbrev_resolve_seed()
+  ()
+}
+
+// main から abbrev/label の経路も 1 度通しておく(初期化健全性)。
+fn w_axis_abbrev_resolve_seed() -> Float = {
+  let _x = w_axis_abbrev(0.0)
+  let _y = w_axis_label(4.0)
+  let _z = out_ptr()
+  1.0
+}
