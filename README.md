@@ -5,7 +5,7 @@ openaituber `kotodama/docs/eval-rubric.md` + `kotodama-cli/src/eval.rs` から�
 軸の定義(メタデータ)だけを切り出した単一責任部品(§12 評価系)。
 
 judge LLM の呼び出しは外部 API、**軸が何で・重みがいくつか**は純粋なのでここに集約。
-集計の算術は [fizz-eval-score](https://github.com/Aid-On/fizz-eval-score)。
+集計の算術は [fizz-eval-score](https://github.com/aiviecast/fizz-eval-score)。
 
 ## 7 軸(Likert 1-7)
 
