@@ -38,16 +38,16 @@ test "axis_abbrev / axis_label" {
 
 test "axis_weight: コンポジット重み(eval.rs と一致)" {
   // 0.20·BEL + 0.20·ENG + 0.15·TEX + 0.10·INI + 0.20·EMO + 0.10·TEM + 0.05·CON
-  assert_eq(float.to_int(float.round(rb.axis_weight(0) * 100.0)), 20)  // BEL
-  assert_eq(float.to_int(float.round(rb.axis_weight(1) * 100.0)), 20)  // ENG
-  assert_eq(float.to_int(float.round(rb.axis_weight(2) * 100.0)), 15)  // TEX
-  assert_eq(float.to_int(float.round(rb.axis_weight(3) * 100.0)), 10)  // INI
-  assert_eq(float.to_int(float.round(rb.axis_weight(4) * 100.0)), 20)  // EMO
-  assert_eq(float.to_int(float.round(rb.axis_weight(5) * 100.0)), 10)  // TEM
-  assert_eq(float.to_int(float.round(rb.axis_weight(6) * 100.0)), 5)   // CON
-  assert_eq(float.to_int(float.round(rb.axis_weight(7) * 100.0)), 0)   // 範囲外
+  assert_eq(int.from_saturating(float.round(rb.axis_weight(0) * 100.0)), 20)  // BEL
+  assert_eq(int.from_saturating(float.round(rb.axis_weight(1) * 100.0)), 20)  // ENG
+  assert_eq(int.from_saturating(float.round(rb.axis_weight(2) * 100.0)), 15)  // TEX
+  assert_eq(int.from_saturating(float.round(rb.axis_weight(3) * 100.0)), 10)  // INI
+  assert_eq(int.from_saturating(float.round(rb.axis_weight(4) * 100.0)), 20)  // EMO
+  assert_eq(int.from_saturating(float.round(rb.axis_weight(5) * 100.0)), 10)  // TEM
+  assert_eq(int.from_saturating(float.round(rb.axis_weight(6) * 100.0)), 5)   // CON
+  assert_eq(int.from_saturating(float.round(rb.axis_weight(7) * 100.0)), 0)   // 範囲外
 }
 
 test "weights_sum == 1.0" {
-  assert_eq(float.to_int(float.round(rb.weights_sum() * 1000.0)), 1000)
+  assert_eq(int.from_saturating(float.round(rb.weights_sum() * 1000.0)), 1000)
 }
